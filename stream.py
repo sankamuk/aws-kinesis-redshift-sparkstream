@@ -69,8 +69,19 @@ if __name__ == '__main__' :
     hadoopConf.set('fs.s3a.threads.max', '4')
     hadoopConf.set('fs.s3a.threads.core', '4')
 
-    schema1 = StructType(
-        [StructField('id', StringType()), StructField('name', StringType())])
+    event_schema = StructType(
+        [StructField('request_id', StringType()),
+         StructField('request_timestamp', StringType()),
+         StructField('cookie_id', StringType()),
+         StructField('topic', StringType()),
+         StructField('message', StringType()),
+         StructField('environment', StringType()),
+         StructField('website_id', StringType()),
+         StructField('user_account_id', StringType()),
+         StructField('location', StringType()),
+         StructField('user_agent', StringType()),
+         StructField('referrer', StringType())
+         ])
 
     input_df = spark.readStream \
         .format("kinesis") \
@@ -82,7 +93,7 @@ if __name__ == '__main__' :
         .load()
 
     output_df = input_df.select(col("data").cast("string"))\
-        .withColumn("value_json", from_json(col("data"), schema1))\
+        .withColumn("value_json", from_json(col("data"), event_schema))\
         .select("value_json.*")
 
 
