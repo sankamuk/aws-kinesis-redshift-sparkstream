@@ -5,9 +5,10 @@
 # Commit History:
 # 15/07/21 - Initial version
 
-red=$'\e[1;31m'
-grn=$'\e[1;32m'
-end=$'\e[0m'
+cd ~/
+export HOME=$(pwd)
+source ~/.bashrc
+sudo yum update -y
 
 MVN_DOWNLOAD_LOCATION="https://mirrors.estointernet.in/apache/maven/maven-3/3.8.1/binaries/apache-maven-3.8.1-bin.tar.gz"
 SPARK_VERSION="2.4.8"
@@ -27,9 +28,9 @@ print(){
   msg="$2"
   if [ $(echo ${msg_t} | grep -qi "error" ; echo $?) -eq 0 ]
   then
-    printf "[%-20s] [%-5s] %-100s\n" "$(date)" "${red}${msg_t}${end}" "$msg"
+    printf "[%-20s] [%-5s] %-100s\n" "$(date)" "${msg_t}" "$msg"
   else
-    printf "[%-20s] [%-5s] %-100s\n" "$(date)" "${grn}${msg_t}${end}" "$msg"
+    printf "[%-20s] [%-5s] %-100s\n" "$(date)" "${msg_t}" "$msg"
   fi
 
 }
@@ -38,8 +39,8 @@ print(){
 print "info" "Bootstraping pipeline."
 
 print "info" "Installing JDK."
-sudo yum install -y -q java-${JDK_VERSION}-openjdk.x86_64 && \
-sudo yum install -y -q java-${JDK_VERSION}-openjdk-devel.x86_64
+sudo yum install -y -q java-${JDK_VERSION}-openjdk.x86_64 && sleep 10s && \
+sudo yum install -y -q java-${JDK_VERSION}-openjdk-devel.x86_64 && sleep 30s
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install JDK."
@@ -57,8 +58,8 @@ fi
 print "info" "Installing Maven."
 [ -d ${HOME}/mvn ] && rm -rf ${HOME}/mvn
 DWN_SUFIX=$(echo ${MVN_DOWNLOAD_LOCATION} | awk -F. '{ print $NF }')
-wget --quiet ${MVN_DOWNLOAD_LOCATION} && tar -zxf apache-maven*.${DWN_SUFIX} && \
-rm -f apache-maven*.${DWN_SUFIX} && mv ${HOME}/apache-maven* ${HOME}/mvn >/dev/null 2>&1
+wget --quiet ${MVN_DOWNLOAD_LOCATION} && tar -zxvf apache-maven*.${DWN_SUFIX} && \
+rm -f apache-maven*.${DWN_SUFIX} && mv ${HOME}/apache-maven* ${HOME}/mvn >/dev/null
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Maven."
@@ -68,8 +69,8 @@ fi
 print "info" "Installing Spark."
 [ -d ${HOME}/spark ] && rm -rf ${HOME}/spark
 wget --quiet https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz && \
-tar -zxf spark-${SPARK_VERSION}-bin-hadoop2.7.tgz && mv spark-${SPARK_VERSION}-bin-hadoop2.7 spark && \
-rm -f spark-${SPARK_VERSION}-bin-hadoop2.7.tgz >/dev/null 2>&1
+tar -zxvf spark-${SPARK_VERSION}-bin-hadoop2.7.tgz && mv spark-${SPARK_VERSION}-bin-hadoop2.7 spark && \
+rm -f spark-${SPARK_VERSION}-bin-hadoop2.7.tgz >/dev/null
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Spark."
@@ -79,8 +80,8 @@ fi
 print "info" "Installing Hadoop."
 [ -d ${HOME}/hadoop ] && rm -rf ${HOME}/hadoop
 wget --quiet https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz && \
-tar -zxf hadoop-${HADOOP_VERSION}.tar.gz && mv hadoop-${HADOOP_VERSION} hadoop && \
-rm -f hadoop-${HADOOP_VERSION}.tar.gz >/dev/null 2>&1
+tar -zxvf hadoop-${HADOOP_VERSION}.tar.gz && mv hadoop-${HADOOP_VERSION} hadoop && \
+rm -f hadoop-${HADOOP_VERSION}.tar.gz >/dev/null
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Hadoop."
@@ -92,7 +93,7 @@ print "info" "Installing Redshift Driver."
 rm -rf ${HOME}/RedshiftJDBC4-no-awssdk-${RS_DRIVER_VERSION}.jar
 wget --quiet \
 https://s3.amazonaws.com/redshift-downloads/drivers/jdbc/${RS_DRIVER_VERSION}/RedshiftJDBC4-no-awssdk-${RS_DRIVER_VERSION}.jar \
->/dev/null 2>&1
+>/dev/null 
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Driver."
@@ -102,7 +103,7 @@ fi
 print "info" "Installing Git Repo for Kinesis driver."
 [ -d ${HOME}/${KS_REPO_NAME} ] && rm -rf ${HOME}/${KS_REPO_NAME}
 [ -d ${HOME}/${KS_CONNECTOR_NAME} ] && rm -rf ${HOME}/${KS_CONNECTOR_NAME}
-git clone ${KS_REPO_LOCATION} >/dev/null 2>&1
+git clone ${KS_REPO_LOCATION} >/dev/null 
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Git Repo."
@@ -115,7 +116,7 @@ then
   print "error" "Cannot switch to required branch."
   exit 1
 fi
-${HOME}/mvn/bin/mvn install -DskipTests >/dev/null 2>&1
+${HOME}/mvn/bin/mvn install -DskipTests >/dev/null
 if [ $? -ne 0 ]
 then
   print "error" "Cannot build connector jar."
@@ -127,7 +128,7 @@ rm -rf ${HOME}/${KS_REPO_NAME}
 
 print "info" "Installing Application Git Repo."
 [ -d ${HOME}/${GIT_REPO_NAME} ] && rm -rf ${HOME}/${GIT_REPO_NAME}
-git clone ${GIT_REPO_LOCATION} >/dev/null 2>&1
+git clone ${GIT_REPO_LOCATION} >/dev/null
 if [ $? -ne 0 ]
 then
   print "error" "Cannot install Git Repo."
