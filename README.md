@@ -94,3 +94,4 @@ You need to set the environment variable `AWS_ACCESS_ARN` with value `arn:aws:ia
 ## Todo
 
 - Better monitoring and logging setup.
+- This solution uses Spark `checkpointing` feature to preserve the `Stream State`. Now the implementation provided uses local volume to preserve the state. This may not be good practice for production. For production if you want to go with EC2 (rather than EMR) use a EBS volume and attach to the instance and set your checkpointig directory inside the EBS volume. 
