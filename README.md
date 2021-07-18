@@ -70,8 +70,27 @@ With good setup your pipeline should be up and running.
 
 You should be able to see logs in **root** users home, inside **logs** directory.
 
+## Cross Account Kinesis as a source (Not tested)
+
+To access Kinesis source in different AWS account then the one our Redshift Cluster and pipeline is placed we can follow the delegation access process, described in https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html.
+
+***NOTE***
+When using cross account Kinesis your read stream you should use one additional parameter shown below:
+
+```
+    input_df = spark.readStream \
+        .format("kinesis") \
+        .option("streamName", os.getenv('KINESIS_STREAM')) \
+        .option("endpointUrl", os.getenv('KINESIS_URL')) \
+        .option("awsAccessKeyId", os.getenv('AWS_ACCESS_ID')) \
+        .option("awsSecretKey", os.getenv('AWS_ACCESS_SECRET')) \
+        .option("awsSTSRoleARN", os.getenv('AWS_ACCESS_ARN')) \
+        .option("startingposition", "latest") \
+        .load()
+```
+
+You need to set the environment variable `AWS_ACCESS_ARN` with value `arn:aws:iam::<External Account Id>:role/<External Account Role>`.
 
 ## Todo
 
-- Cross account Kinesis connectivity.
 - Better monitoring and logging setup.
