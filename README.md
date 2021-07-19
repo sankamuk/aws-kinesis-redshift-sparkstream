@@ -13,6 +13,20 @@ Kinesis Stream  ------>  Spark Streaming Application  ------>  Redshift Cluster 
 
 > Note currently the teraform automation supports `EC2` based deployment but in case the in future the scale up required `EMR` can be choosen to deploy the pipeline.
 
+#### Scalability
+
+This pipeline is powered by Apache Spark which has the ability to scale out as per requirement both vertically and horizontally. In this sample we have choosen an Micro EC2 instance with single core but in an deployment we can scale up the core to increase solutions ability to precess messages. Also if this is not meetin requirement we can look into more scaleable solution like EMR and even custom deployment in Kubernetes, e.g. [Spark Standalone on Kubernetes](https://github.com/sankamuk/spark-kubernetes), [Kubernetes as Cluster Manager](https://spark.apache.org/docs/latest/running-on-kubernetes.html). Now how much parallelism Kinesis (with increased shards) and Redshift support need to be tested.
+
+#### Fault Tolerence
+
+This set presented doesnot consifer this aspect but it can easily be incorporated into the solution:
+
+- Process recovery can be added with a monitoring solution for single node EC2, for EMR solution YARN handles the same and for Kubernetes we have multiple container recovery options.
+
+- For checkpoint data recovery, can be handled either with a external EBS volume attached to the EC2, Distributed storage for EMR or Kubernetes Volume for Kubernetes deployment.
+
+
+
 ## Deliverable details
 
 - `Pyspark Structured Streaming script` to execute the pipeline.
