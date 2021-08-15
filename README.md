@@ -1,5 +1,10 @@
 # Spark Structured Streaming Data Pipeline from AWS Kinesis to AWS Redshift
 
+![Python](https://img.shields.io/badge/lang-Python-brightgreen.svg)
+![Terraform](https://img.shields.io/badge/lang-Terraform-brightgreen.svg)
+![Apache Spark](https://img.shields.io/badge/lib-Spark-brightgreen.svg)
+![AWS](https://img.shields.io/badge/plat-AWS-brightgreen.svg)
+
 ## Overview
 
 Spark Structured Streaming data pipeline. Pushes data from Kinesis Stream to a Redshift Cluster. The pipeline keeps data backup in S3 per day basis for easy replaying of data in case required.
